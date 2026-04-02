@@ -1,0 +1,46 @@
+
+services:
+  db:
+    container_name: portfolio-db
+    healthcheck:
+      test: "pg_isready -h localhost -p 5432 -q -U postgres -d postgres"
+      interval: 3s
+      timeout: 5s
+      retries: 5
+    image: postgres:14-alpine
+    environment:
+      POSTGRES_DB: portfolio
+    env_file: .env.dev
+    volumes:
+      - portfolio-db-data:/var/lib/postgresql/data/
+    ports:
+      - "5432:5432"
+    restart: always
+    networks:
+      - portfolio-network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: local
+    entrypoint: bash /code/docker-entrypoint-dev.sh
+    container_name: portfolio-app
+    image: portfolio-backend-service
+    volumes:
+      - .:/code
+      - ../portfolio-backend-service-logs:/logs
+    ports:
+      - 8000:8000
+    env_file: .env.dev
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - portfolio-network
+
+volumes:
+  portfolio-db-data:
+
+networks:
+  portfolio-network:

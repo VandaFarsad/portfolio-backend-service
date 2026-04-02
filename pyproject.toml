@@ -1,0 +1,84 @@
+[project]
+name = "portfolio-backend-service"
+version = "0.1.0"
+description = "A Django-based service for managing and serving a portfolio of projects, with a React frontend."
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "dj-database-url>=3.1.2",
+    "django~=6.0.3",
+    "django-cors-headers~=4.9.0",
+    "djangorestframework~=3.16.1",
+    "drf-spectacular~=0.29.0",
+    "environs>=15.0.0",
+    "psycopg2-binary>=2.9.11,<3.0.0",
+]
+
+
+[dependency-groups]
+dev = [
+    "django-stubs~=6.0.2",
+    "djangorestframework-stubs~=3.16.9",
+    "ipykernel~=7.2.0",
+    "mypy~=1.20.0",
+    "pre-commit~=4.5.1",
+    "pytest~=9.0.2",
+    "pytest-cov~=7.1.0",
+    "pytest-django~=4.12.0",
+    "ruff~=0.15.8",
+]
+prod = ["gunicorn~=22.0.0", "uvicorn~=0.29.0"]
+
+
+[tool.ruff]
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+    "migrations",
+]
+line-length = 120
+indent-width = 4
+
+[tool.ruff.lint.per-file-ignores]
+"test_*.py" = ["F401", "F403", "F405", "F811"]
+
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "conf.test_settings"
+norecursedirs = ["build", "bin", "dist", "docs", ".git", "static", "templates"]
+addopts = ["-v", "--capture=no", "--cov", "--cov-config=pyproject.toml"]
+
+[tool.coverage.run]
+omit = [
+    "*/tests/*",
+    "*/migrations/*",
+    "*/apps.py",
+    "*/admin.py",
+    "*/settings.py",
+    "conftest.py",
+    "*/__init__.py",
+]
