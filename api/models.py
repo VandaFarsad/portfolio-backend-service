@@ -16,7 +16,6 @@ class TechnologyChoices(models.TextChoices):
     NEXTJS = "nextjs", "Next.js"
     REACT = "react", "React"
     NODEJS = "nodejs", "Node.js"
-    POSTGRESQL = "postgresql", "PostgreSQL"
     POSTGRES = "postgres", "PostgreSQL"
     REDIS = "redis", "Redis"
     TAILWIND = "tailwind", "Tailwind CSS"
@@ -35,6 +34,8 @@ class TechnologyChoices(models.TextChoices):
     CSHARP = "c#", "C#"
     MATHEMATICA = "mathematica", "Mathematica"
     MATLAB = "matlab", "MATLAB"
+    R = "r", "R"
+    JAVA = "java", "Java"
 
 
 class StackIcon(models.Model):
