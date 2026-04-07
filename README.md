@@ -87,6 +87,12 @@ docker logs -f portfolio-backend
 
 In production, an external Nginx reverse proxy (managed separately) handles TLS termination and forwards traffic to port 8000. The Nginx setup uses [JonasAlfredsson/docker-nginx-certbot](https://github.com/JonasAlfredsson/docker-nginx-certbot) for automatic Let's Encrypt certificates.
 
+Connect the backend container to the Nginx network so Nginx can reach it by container name:
+
+```bash
+docker network connect nginx_app-network portfolio-backend
+```
+
 ## Project Structure
 
 - `conf/` — Django project settings, URLs, ASGI/WSGI config
