@@ -1,82 +1,98 @@
-# Developers Portfolio Page with Django and React
+# Portfolio Backend Service
 
-## Introduction
+Django REST API backend for the portfolio at [www.initial-commit.com](https://www.initial-commit.com).
 
-Welcome to the repository of my Portfolio Page! This project is a hybrid web application built using the Django backend framework and the React frontend library. It leverages the power of Django for server-side rendering and React for a dynamic and interactive user interface. TypeScript is used for type-safe JavaScript, and Docker is used for containerization.
+## Tech Stack
 
-You can view a live demo of the application at [www.initial-commit.com](http://www.initial-commit.com).
-
-## Features
-
-- **Technologies**: Uses React, Django, and TypeScript.
-- **Fetched Data**: Dynamically fetched from Django backend.
-- **Responsive**: Adapts to all device screen sizes.
-- **Dark Mode**: Toggleable dark mode.
-- **Docker**: Supported for easy setup and deployment.
+- **Django 6** with Django REST Framework
+- **PostgreSQL** as database
+- **Gunicorn + Uvicorn** as ASGI server
+- **Docker** for containerization
+- **uv** for dependency management
 
 ## Prerequisites
 
-Ensure you have the following tools installed on your machine:
-
 - [Docker](https://www.docker.com/)
-- [Docker Compose](https://docs.docker.com/compose/)
-- [Node.js](https://nodejs.org/) (for frontend development)
-- [Python](https://www.python.org/) (for backend development)
+- [Docker Compose](https://docs.docker.com/compose/) (for local development)
+- PostgreSQL (for production, running on the host)
 
-## Getting Started
-
-**Clone the repository:**
-
-```bash
-git clone https://github.com/VandaFarsad/portfolio-backend-service
-cd portfolio-backend-boilerplate
-```
-
-**Start the application using Docker:**
+## Local Development
 
 ```bash
 docker compose up
 ```
 
-The application will be accessible at:
+This starts both the PostgreSQL database and the Django app using the `local` target. The app is accessible at http://localhost:8000.
 
-- Backend (Django Admin Page): http://localhost:8000/admin
-- Frontend (React App): http://localhost:3000/
+Environment variables are loaded from `.env.dev`.
 
-For **production**, use the following command:
+## Production Deployment
+
+Production runs as a standalone Docker container connecting to a host-level PostgreSQL instance.
+
+### 1. Configure environment
+
+Create a `.env` file in the project root. Use [.env.dev](.env.dev) as a reference. Key variables:
+
+| Variable | Description |
+|---|---|
+| `DATABASE_HOST` | PostgreSQL host (e.g. `172.17.0.1` for Docker bridge) |
+| `DATABASE_NAME` | Database name |
+| `DATABASE_USER` | Database user |
+| `DATABASE_PASSWORD` | Database password |
+| `SECRET_KEY` | Django secret key |
+| `ALLOWED_HOSTS` | Comma-separated list of allowed hosts |
+| `CSRF_TRUSTED_ORIGINS` | Comma-separated list of trusted origins |
+| `DEBUG` | Set to `False` in production |
+
+**Important:** Do not quote values in `.env` — Docker `--env-file` passes quotes literally.
+
+### 2. Build and run
 
 ```bash
-docker compose -f docker-compose.prod.yml up
+# Build the production image
+docker build --target deploy -t portfolio-backend-service .
+
+# Start the container
+docker run -d \
+  --name portfolio-backend \
+  --env-file .env \
+  -p 8000:8000 \
+  --restart unless-stopped \
+  portfolio-backend-service
 ```
 
-**Create an environment file for production deployment:**
+The entrypoint automatically runs migrations, collects static files, and starts Gunicorn on port 8000.
 
-In order to deploy the application in production, create a `.env` file in the root directory. You can use [.env.local](.env.local) as a reference.
+### 3. Update after changes
 
-## Nginx in Production
+```bash
+docker rm -f portfolio-backend
+docker build --target deploy -t portfolio-backend-service .
+docker run -d \
+  --name portfolio-backend \
+  --env-file .env \
+  -p 8000:8000 \
+  --restart unless-stopped \
+  portfolio-backend-service
+```
 
-For production, the Nginx service is used to serve the application. The Nginx configuration can be found in the [nginx](./nginx) directory.
+### 4. View logs
 
-Here is the GitHub repository for the Nginx image used in production: [JonasAlfredsson/docker-nginx-certbot](https://github.com/JonasAlfredsson/docker-nginx-certbot)
+```bash
+docker logs -f portfolio-backend
+```
 
-## Configuration
+## Nginx
 
-- Backend configuration files can be found in the `main` directory.
-- Frontend configuration files can be found in the `frontend` directory.
-- Nginx configuration for production is available in the `nginx` directory.
+In production, an external Nginx reverse proxy (managed separately) handles TLS termination and forwards traffic to port 8000. The Nginx setup uses [JonasAlfredsson/docker-nginx-certbot](https://github.com/JonasAlfredsson/docker-nginx-certbot) for automatic Let's Encrypt certificates.
+
+## Project Structure
+
+- `conf/` — Django project settings, URLs, ASGI/WSGI config
+- `api/` — REST API app (models, serializers, views, URLs)
+- `core/` — Core app with management commands (e.g. `wait_for_db`)
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
-
-## Acknowledgments
-
-- Thanks to Jonas Alfredsson for the Nginx and Certbot Docker image. See the [GitHub Repository](https://github.com/JonasAlfredsson/docker-nginx-certbot).
-- Thanks to the developers of the following React libraries and resources used in this project:
-  - [React Vertical Timeline](https://github.com/stephane-monnot/react-vertical-timeline)
-  - [React Typical Animation](https://github.com/maxeth/react-type-animation)
-  - [React Toggle Dark Mode](https://github.com/JoseRFelix/react-toggle-dark-mode)
-- Thanks to [Iconify Design](https://iconify.design/icon-sets/?query=angular) for providing the icons.
-- Thanks to [Tholman](https://tholman.com/github-corners/) for the GitHub Ref Corner.
-- Thanks to [Dorota1997](https://github.com/Dorota1997/react-frontend-dev-portfolio/blob/main/README.md) for inspiration.
-- Thanks to ChatGPT, for generating this README ;-)
+This project is licensed under the MIT License — see the [LICENSE](./LICENSE) file for details.
