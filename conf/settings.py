@@ -9,12 +9,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Load enviroment variables
 env = Env()
 
-if (BASE_DIR / ".env.local").exists():
-    env.read_env(str(BASE_DIR / ".env.local"), recurse=False)
-else:
-    env.read_env(str(BASE_DIR / ".env.test"), recurse=False)
-
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
