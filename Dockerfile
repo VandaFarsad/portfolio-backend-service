@@ -1,10 +1,11 @@
 FROM python:3.14-slim AS base
-COPY --from=ghcr.io/astral-sh/uv:0.11.3 /uv /uvx /bin/
+COPY --from=ghcr.io/astral-sh/uv:0.11.4 /uv /uvx /bin/
 WORKDIR /code
 ENV APPLICATION_PORT=8000
 ENV UV_LINK_MODE=copy
 RUN apt update && apt install -y \
     gcc make git iputils-ping g++ libldap2-dev libsasl2-dev ldap-utils libpq-dev curl exiftool
+RUN echo "nameserver 8.8.8.8" > /etc/resolv.conf
 COPY uv.lock pyproject.toml ./
 RUN uv export --no-dev | uv pip install --system --requirements=-
 COPY . .
