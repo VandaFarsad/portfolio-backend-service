@@ -56,14 +56,11 @@ jobs:
       - name: Run ruff
         run: uv run ruff check .
 
-      - name: Check migrations
-        run: uv run python manage.py makemigrations --check
-
-      - name: Run migrations
-        run: uv run python manage.py migrate --noinput
-
-      - name: Run pytest
-        run: uv run pytest
+      - name: Django setup & tests
+        run: |
+          uv run python manage.py makemigrations --check
+          uv run python manage.py migrate --noinput
+          uv run pytest
 
       - name: Build Docker image
         run: docker build -t portfolio-backend-service .
