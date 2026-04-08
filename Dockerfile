@@ -1,7 +1,7 @@
 FROM python:3.14-slim AS base
 COPY --from=ghcr.io/astral-sh/uv:0.11.3 /uv /uvx /bin/
 WORKDIR /code
-ENV APPLICATION_PORT 8000
+ENV APPLICATION_PORT=8000
 ENV UV_LINK_MODE=copy
 RUN apt update && apt install -y \
     gcc make git iputils-ping g++ libldap2-dev libsasl2-dev ldap-utils libpq-dev curl exiftool
