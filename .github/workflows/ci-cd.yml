@@ -99,7 +99,7 @@ jobs:
             docker rm -f portfolio-backend || true
             docker run -d \
               --name portfolio-backend \
-              --env-file .env.local \
+              --env-file .env \
               -p 8080:8080 \
               --network nginx_app-network \
               --restart unless-stopped \
