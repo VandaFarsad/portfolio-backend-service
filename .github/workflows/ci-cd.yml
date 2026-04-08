@@ -1,14 +1,29 @@
-name: Deploy to Hetzner
+name: CI/CD to Hetzner
 
 on:
   push:
-    tags:
-      - "v*"
+  pull_request:
+  tags: [ "v*" ]
 
 jobs:
-  lint-and-test:
-    name: Lint and Test
+  test:
+    name: Test & Lint
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: testdb
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
 
     steps:
       - name: Checkout
@@ -28,15 +43,25 @@ jobs:
       - name: Run ruff
         run: uv run ruff check .
 
-      - name: Run pytest
-        run: uv run pytest
+      - name: Django setup & pytest
+        env:
+          SECRET_KEY: django-ci-secret-key-dummy
+          DJANGO_SETTINGS_MODULE: conf.test_settings
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/testdb
+          DEBUG: "1"
+          ALLOWED_HOSTS: "*"
+        run: |
+          uv run python manage.py makemigrations --check
+          uv run python manage.py migrate --noinput
+          uv run pytest
 
       - name: Build Docker image
         run: docker build -t portfolio-backend-service .
 
   deploy:
-    name: Deploy
-    needs: lint-and-test
+    name: Deploy to Hetzner
+    needs: test
+    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
 
     steps:
@@ -51,11 +76,9 @@ jobs:
           envs: TAG_NAME
           script: |
             set -e
-
             cd /root/portfolio/portfolio-backend-service
             git fetch --all --tags
             git checkout "$TAG_NAME"
-
             docker build -t portfolio-backend-service .
             docker rm -f portfolio-backend || true
             docker run -d \
