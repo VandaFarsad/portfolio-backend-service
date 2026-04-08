@@ -2,8 +2,9 @@ name: CI/CD to Hetzner
 
 on:
   push:
+    branches: ["**"]
+    tags: [ "v*" ]
   pull_request:
-  tags: [ "v*" ]
 
 jobs:
   test:
