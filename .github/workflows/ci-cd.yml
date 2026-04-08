@@ -3,7 +3,7 @@ name: CI/CD to Hetzner
 on:
   push:
     branches: ["**"]
-    tags: [ "v*" ]
+    tags: ["v*"]
   pull_request:
 
 jobs:
@@ -26,6 +26,18 @@ jobs:
         ports:
           - 5432:5432
 
+    env:
+      DJANGO_SETTINGS_MODULE: conf.test_settings
+      SECRET_KEY: django-ci-secret-key-dummy
+      DEBUG: "1"
+      ALLOWED_HOSTS: "*"
+      DATABASE_ENGINE: postgresql
+      DATABASE_NAME: testdb
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: postgres
+      DATABASE_HOST: localhost
+      DATABASE_PORT: "5432"
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -44,17 +56,14 @@ jobs:
       - name: Run ruff
         run: uv run ruff check .
 
-      - name: Django setup & pytest
-        env:
-          SECRET_KEY: django-ci-secret-key-dummy
-          DJANGO_SETTINGS_MODULE: conf.test_settings
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/testdb
-          DEBUG: "1"
-          ALLOWED_HOSTS: "*"
-        run: |
-          uv run python manage.py makemigrations --check
-          uv run python manage.py migrate --noinput
-          uv run pytest
+      - name: Check migrations
+        run: uv run python manage.py makemigrations --check
+
+      - name: Run migrations
+        run: uv run python manage.py migrate --noinput
+
+      - name: Run pytest
+        run: uv run pytest
 
       - name: Build Docker image
         run: docker build -t portfolio-backend-service .
