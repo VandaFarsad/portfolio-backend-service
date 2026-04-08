@@ -100,7 +100,7 @@ jobs:
             docker run -d \
               --name portfolio-backend \
               --env-file .env \
-              -p 8080:8080 \
+              -p 8000:8000 \
               --network nginx_app-network \
               --restart unless-stopped \
               portfolio-backend-service
