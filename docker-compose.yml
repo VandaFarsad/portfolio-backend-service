@@ -25,7 +25,7 @@ services:
       dockerfile: Dockerfile
       target: local
     entrypoint: bash /code/docker-entrypoint-dev.sh
-    container_name: portfolio-app
+    container_name: portfolio-backend
     image: portfolio-backend-service
     volumes:
       - .:/code
