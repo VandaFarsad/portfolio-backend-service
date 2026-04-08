@@ -63,7 +63,7 @@ jobs:
           uv run pytest
 
       - name: Build Docker image
-        run: docker build -t portfolio-backend-service .
+        run: docker build --dns 8.8.8.8 -t portfolio-backend-service .
 
   deploy:
     name: Deploy to Hetzner
@@ -86,7 +86,7 @@ jobs:
             cd /root/portfolio/portfolio-backend-service
             git fetch --all --tags
             git checkout "$TAG_NAME"
-            docker build -t portfolio-backend-service .
+            docker build --dns 8.8.8.8 -t portfolio-backend-service .
             docker rm -f portfolio-backend || true
             docker run -d \
               --name portfolio-backend \

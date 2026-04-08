@@ -5,7 +5,6 @@ ENV APPLICATION_PORT=8000
 ENV UV_LINK_MODE=copy
 RUN apt update && apt install -y \
     gcc make git iputils-ping g++ libldap2-dev libsasl2-dev ldap-utils libpq-dev curl exiftool
-RUN echo "nameserver 8.8.8.8" > /etc/resolv.conf
 COPY uv.lock pyproject.toml ./
 RUN uv export --no-dev | uv pip install --system --requirements=-
 COPY . .
