@@ -103,6 +103,8 @@ jobs:
               --name portfolio-backend-staging \
               --env-file .env.staging \
               -p 8002:8000 \
+              -v nginx_static_volume_initial-commit-staging:/code/static \
+              -v nginx_media_volume_initial-commit-staging:/code/media \
               --network nginx_app-network \
               --restart unless-stopped \
               portfolio-backend-service-staging
@@ -135,6 +137,8 @@ jobs:
               --name portfolio-backend \
               --env-file .env \
               -p 8000:8000 \
+              -v nginx_static_volume_initial-commit:/code/static \
+              -v nginx_media_volume_initial-commit:/code/media \
               --network nginx_app-network \
               --restart unless-stopped \
               portfolio-backend-service
